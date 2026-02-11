@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Loan EMI Calculator - SmartTools</title>
+    <meta name="description" content="Free global loan EMI calculator. Calculate monthly EMI, total interest and total payment instantly.">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<div class="navbar">
+    <a href="../index.html">← Back to Home</a>
+</div>
+
+<div class="container">
+    <h1>Global Loan Calculator</h1>
+
+    <label>Loan Amount</label>
+    <input type="number" id="loanAmount">
+
+    <label>Annual Interest Rate (%)</label>
+    <input type="number" id="interestRate">
+
+    <label>Loan Tenure (Years)</label>
+    <input type="number" id="loanTenure">
+
+    <label>Select Currency</label>
+    <select id="currency">
+        <option value="USD">USD ($)</option>
+        <option value="GBP">GBP (£)</option>
+        <option value="CAD">CAD ($)</option>
+        <option value="AUD">AUD ($)</option>
+        <option value="EUR">EUR (€)</option>
+        <option value="INR">INR (₹)</option>
+    </select>
+
+    <button onclick="calculateEMI()">Calculate</button>
+
+    <div class="results" style="margin-top:20px;">
+        <div class="box">
+            <h2 id="emi">0</h2>
+            <p>Monthly EMI</p>
+        </div>
+        <div class="box">
+            <h2 id="totalInterest">0</h2>
+            <p>Total Interest</p>
+        </div>
+        <div class="box">
+            <h2 id="totalPayment">0</h2>
+            <p>Total Payment</p>
+        </div>
+    </div>
+</div>
+
+<script>
+function calculateEMI() {
+
+    const P = parseFloat(document.getElementById("loanAmount").value);
+    const annualRate = parseFloat(document.getElementById("interestRate").value);
+    const years = parseFloat(document.getElementById("loanTenure").value);
+    const currency = document.getElementById("currency").value;
+
+    if (!P || !annualRate || !years) {
+        alert("Please fill all fields.");
+        return;
+    }
+
+    const R = annualRate / (12 * 100);
+    const N = years * 12;
+
+    const emi = (P * R * Math.pow(1 + R, N)) / (Math.pow(1 + R, N) - 1);
+
+    const totalPayment = emi * N;
+    const totalInterest = totalPayment - P;
+
+    document.getElementById("emi").innerText =
+        emi.toLocaleString("en", { style: "currency", currency: currency });
+
+    document.getElementById("totalInterest").innerText =
+        totalInterest.toLocaleString("en", { style: "currency", currency: currency });
+
+    document.getElementById("totalPayment").innerText =
+        totalPayment.toLocaleString("en", { style: "currency", currency: currency });
+}
+</script>
+
+</body>
+</html>
+

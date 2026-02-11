@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Age Calculator - SmartTools</title>
+    <meta name="description" content="Free online age calculator. Calculate your exact age in years, months and days instantly.">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+    <div class="navbar">
+    <a href="../index.html">← Back to Home</a>
+</div>
+
+    <div class="container">
+        <h1>Age Calculator</h1>
+
+        <label>Select Your Date of Birth:</label>
+        <input type="date" id="dob">
+
+        <button onclick="calculateAge()">Calculate Age</button>
+
+        <div class="results" style="margin-top:20px;">
+            <div class="box">
+                <h2 id="years">0</h2>
+                <p>Years</p>
+            </div>
+            <div class="box">
+                <h2 id="months">0</h2>
+                <p>Months</p>
+            </div>
+            <div class="box">
+                <h2 id="days">0</h2>
+                <p>Days</p>
+            </div>
+        </div>
+    </div>
+
+<script>
+function calculateAge() {
+    const dob = new Date(document.getElementById("dob").value);
+    const today = new Date();
+
+    if (!document.getElementById("dob").value) {
+        alert("Please select your date of birth.");
+        return;
+    }
+
+    let years = today.getFullYear() - dob.getFullYear();
+    let months = today.getMonth() - dob.getMonth();
+    let days = today.getDate() - dob.getDate();
+
+    if (days < 0) {
+        months--;
+        const previousMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+        days += previousMonth.getDate();
+    }
+
+    if (months < 0) {
+        years--;
+        months += 12;
+    }
+
+    document.getElementById("years").innerText = years;
+    document.getElementById("months").innerText = months;
+    document.getElementById("days").innerText = days;
+}
+</script>
+
+</body>
+</html>

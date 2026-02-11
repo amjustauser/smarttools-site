@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Smart Image Compressor - SmartTools</title>
+    <meta name="description" content="Compress images to exact target size like under 100KB, 200KB, 500KB. Perfect for exam and government forms.">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<div class="navbar">
+    <a href="../index.html">← Back to Home</a>
+</div>
+
+<div class="container">
+    <h1>Smart Image Compressor</h1>
+
+    <input type="file" id="upload" accept="image/*">
+
+    <p style="font-size:14px; color:gray;">
+Supported formats: JPG, PNG. PDF compression coming soon.
+</p>
+
+
+    <h3>Preset Target Sizes</h3>
+    <button onclick="setTarget(100)">Under 100 KB</button>
+    <button onclick="setTarget(200)">Under 200 KB</button>
+    <button onclick="setTarget(500)">Under 500 KB</button>
+
+    <h3>Custom Target Size (KB)</h3>
+    <input type="number" id="targetSize" placeholder="Enter size in KB">
+
+    <h3>Output Format</h3>
+<select id="format">
+    <option value="image/jpeg">JPG (Recommended)</option>
+    <option value="image/png">PNG</option>
+</select>
+
+
+    <button onclick="compressToTarget()">Compress to Target</button>
+
+    <div id="previewSection" style="margin-top:20px; display:none;">
+        <h3>Preview</h3>
+        <img id="previewImage" style="max-width:100%; border-radius:8px;">
+        <p><strong>Original Size:</strong> <span id="originalSize"></span></p>
+        <p><strong>Compressed Size:</strong> <span id="compressedSize"></span></p>
+        <p><strong>Reduction:</strong> <span id="reduction"></span></p>
+        <p><strong>Final Dimensions:</strong> <span id="finalDimensions"></span></p>
+<p><strong>Status:</strong> <span id="status"></span></p>
+
+        <button id="downloadBtn">Download</button>
+    </div>
+</div>
+
+<script>
+
+function formatSize(bytes) {
+    return (bytes / 1024).toFixed(2) + " KB";
+}
+
+function setTarget(size) {
+    document.getElementById("targetSize").value = size;
+}
+
+
+
+async function compressToTarget() {
+
+    const fileInput = document.getElementById("upload");
+    const targetKB = parseFloat(document.getElementById("targetSize").value);
+    const format = document.getElementById("format").value;
+
+    if (!fileInput.files[0] || !targetKB) {
+        alert("Upload image and enter target size.");
+        return;
+    }
+
+    const file = fileInput.files[0];
+    const targetBytes = targetKB * 1024;
+
+    const reader = new FileReader();
+
+    reader.onload = function(event) {
+
+        const img = new Image();
+        img.src = event.target.result;
+
+        img.onload = async function() {
+
+            let width = img.width;
+            let height = img.height;
+
+            let minQ = 0.1;
+            let maxQ = 1.0;
+            let bestBlob = null;
+
+            for (let i = 0; i < 15; i++) {
+
+                const midQ = (minQ + maxQ) / 2;
+
+                const canvas = document.createElement("canvas");
+                canvas.width = width;
+                canvas.height = height;
+
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0, width, height);
+
+                const blob = await new Promise(resolve =>
+                    canvas.toBlob(resolve, format, midQ)
+                );
+
+                if (blob.size > targetBytes) {
+                    maxQ = midQ;
+                } else {
+                    minQ = midQ;
+                    bestBlob = blob;
+                }
+            }
+
+            while ((!bestBlob || bestBlob.size > targetBytes) && width > 50) {
+
+                width *= 0.9;
+                height *= 0.9;
+
+                const canvas = document.createElement("canvas");
+                canvas.width = width;
+                canvas.height = height;
+
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0, width, height);
+
+                bestBlob = await new Promise(resolve =>
+                    canvas.toBlob(resolve, format, minQ)
+                );
+            }
+
+            showResult(file, bestBlob, width, height, targetBytes);
+        };
+    };
+
+    reader.readAsDataURL(file);
+}
+
+
+
+function showResult(originalFile, blob, width, height, targetBytes) {
+
+    const previewSection = document.getElementById("previewSection");
+    const previewImage = document.getElementById("previewImage");
+
+    previewImage.src = URL.createObjectURL(blob);
+
+    document.getElementById("originalSize").innerText = formatSize(originalFile.size);
+    document.getElementById("compressedSize").innerText = formatSize(blob.size);
+
+    const reduction = ((originalFile.size - blob.size) / originalFile.size) * 100;
+    document.getElementById("reduction").innerText = reduction.toFixed(2) + "%";
+
+    document.getElementById("finalDimensions").innerText =
+        Math.round(width) + " × " + Math.round(height) + " px";
+
+    const statusText = document.getElementById("status");
+
+    if (blob.size <= targetBytes) {
+        statusText.innerHTML = "<span style='color:green;'>✔ Safe: Under target limit</span>";
+    } else {
+        statusText.innerHTML = "<span style='color:red;'>✖ Exceeds target</span>";
+    }
+
+    previewSection.style.display = "block";
+
+    const downloadBtn = document.getElementById("downloadBtn");
+    downloadBtn.onclick = function() {
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "compressed-image";
+        link.click();
+    };
+}
+
+
+</script>
+
+</body>
+</html>
+
