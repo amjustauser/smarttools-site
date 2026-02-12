@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Resize Image to Exact Dimensions Online | SmartTools</title>
+    <meta name="description" content="Resize image to exact dimensions like 300x300, 600x600 or passport size. Free online image resizer tool.">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<div class="navbar">
+    <a href="../index.html">← Back to Home</a>
+</div>
+
+<div class="container">
+
+    <h1>Resize Image to Exact Dimensions</h1>
+
+    <input type="file" id="upload" accept="image/*">
+
+    <p style="font-size:14px; color:gray;">
+    Supports JPG, PNG. Resizing happens in your browser.
+    </p>
+
+    <label>Width (px)</label>
+    <input type="number" id="widthInput">
+
+    <label>Height (px)</label>
+    <input type="number" id="heightInput">
+
+    <label>
+        <input type="checkbox" id="keepRatio" checked>
+        Keep Aspect Ratio
+    </label>
+
+    <h3>Output Format</h3>
+    <select id="format">
+        <option value="image/jpeg">JPG</option>
+        <option value="image/png">PNG</option>
+    </select>
+
+    <button onclick="resizeImage()">Resize Image</button>
+
+    <div id="previewSection" style="margin-top:20px; display:none;">
+        <h3>Preview</h3>
+        <img id="previewImage" style="max-width:100%; border-radius:8px;">
+        <p><strong>Final Dimensions:</strong> <span id="finalDimensions"></span></p>
+        <button id="downloadBtn">Download</button>
+    </div>
+
+</div>
+
+<script>
+
+let originalWidth, originalHeight;
+
+document.getElementById("upload").addEventListener("change", function(e) {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+
+    reader.onload = function(event) {
+        const img = new Image();
+        img.src = event.target.result;
+
+        img.onload = function() {
+            originalWidth = img.width;
+            originalHeight = img.height;
+
+            document.getElementById("widthInput").value = originalWidth;
+            document.getElementById("heightInput").value = originalHeight;
+        };
+    };
+
+    reader.readAsDataURL(file);
+});
+
+document.getElementById("widthInput").addEventListener("input", function() {
+    if (document.getElementById("keepRatio").checked) {
+        const ratio = originalHeight / originalWidth;
+        document.getElementById("heightInput").value =
+            Math.round(this.value * ratio);
+    }
+});
+
+function resizeImage() {
+
+    const fileInput = document.getElementById("upload");
+    const width = parseInt(document.getElementById("widthInput").value);
+    const height = parseInt(document.getElementById("heightInput").value);
+    const format = document.getElementById("format").value;
+
+    if (!fileInput.files[0] || !width || !height) {
+        alert("Upload image and enter dimensions.");
+        return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = function(event) {
+        const img = new Image();
+        img.src = event.target.result;
+
+        img.onload = function() {
+
+            const canvas = document.createElement("canvas");
+            canvas.width = width;
+            canvas.height = height;
+
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, width, height);
+
+            canvas.toBlob(function(blob) {
+
+                const previewSection = document.getElementById("previewSection");
+                const previewImage = document.getElementById("previewImage");
+
+                previewImage.src = URL.createObjectURL(blob);
+
+                document.getElementById("finalDimensions").innerText =
+                    width + " × " + height + " px";
+
+                previewSection.style.display = "block";
+
+                document.getElementById("downloadBtn").onclick = function() {
+                    const link = document.createElement("a");
+                    link.href = URL.createObjectURL(blob);
+                    link.download = "resized-image";
+                    link.click();
+                };
+
+            }, format, 0.9);
+        };
+    };
+
+    reader.readAsDataURL(fileInput.files[0]);
+}
+
+</script>
+
+</body>
+</html>
