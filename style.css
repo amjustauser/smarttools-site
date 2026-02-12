@@ -94,3 +94,17 @@ input {
     transform: translateY(-5px);
     box-shadow: 0 10px 20px rgba(0,0,0,0.2);
 }
+.container h2 {
+    margin-top: 40px;
+    font-size: 26px;
+}
+
+.container p {
+    line-height: 1.7;
+    margin-bottom: 15px;
+}
+
+.container ul {
+    margin-top: 15px;
+    margin-left: 20px;
+}

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+   <title>JPG to PNG Converter Online Free | Convert Without Losing Quality</title>
+    <meta name="description" content="Convert JPG to PNG online instantly. Free image converter tool. No uploads required.">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<div class="navbar">
+    <a href="../index.html">← Back to Home</a>
+</div>
+
+<div class="container">
+
+    <h1>Convert JPG to PNG Online</h1>
+
+    <input type="file" id="upload" accept="image/jpeg">
+
+    <p style="font-size:14px; color:gray;">
+    JPG files only. Conversion happens in your browser.
+    </p>
+
+    <button onclick="convertImage()">Convert to PNG</button>
+
+    <div id="previewSection" style="margin-top:20px; display:none;">
+        <h3>Preview</h3>
+        <img id="previewImage" style="max-width:100%; border-radius:8px;">
+        <button id="downloadBtn">Download PNG</button>
+    </div>
+
+    <div style="margin-top:60px;">
+
+<h2>Convert JPG to PNG Without Losing Quality</h2>
+
+<p>
+Use this free online JPG to PNG converter to change your image format instantly.
+This tool converts JPG images into high-quality PNG format directly in your browser.
+</p>
+
+<p>
+All conversion happens locally on your device. Your images are never uploaded to any server,
+ensuring complete privacy and security.
+</p>
+
+<h3>Why Convert JPG to PNG?</h3>
+
+<ul>
+<li>PNG supports transparency</li>
+<li>Better for graphics and logos</li>
+<li>Lossless image quality</li>
+<li>Required for certain online forms</li>
+</ul>
+
+</div>
+
+
+</div>
+
+<script>
+
+function convertImage() {
+
+    const fileInput = document.getElementById("upload");
+
+    if (!fileInput.files[0]) {
+        alert("Please upload a JPG image.");
+        return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = function(event) {
+
+        const img = new Image();
+        img.src = event.target.result;
+
+        img.onload = function() {
+
+            const canvas = document.createElement("canvas");
+            canvas.width = img.width;
+            canvas.height = img.height;
+
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0);
+
+            canvas.toBlob(function(blob) {
+
+                const previewSection = document.getElementById("previewSection");
+                const previewImage = document.getElementById("previewImage");
+
+                previewImage.src = URL.createObjectURL(blob);
+
+                previewSection.style.display = "block";
+
+                document.getElementById("downloadBtn").onclick = function() {
+                    const link = document.createElement("a");
+                    link.href = URL.createObjectURL(blob);
+                    link.download = "converted-image.png";
+                    link.click();
+                };
+
+            }, "image/png");
+        };
+    };
+
+    reader.readAsDataURL(fileInput.files[0]);
+}
+
+</script>
+
+</body>
+</html>
