@@ -26,9 +26,17 @@
         <h1>Age Calculator</h1>
 
         <label>Select Your Date of Birth:</label>
-        <input type="date" id="dob">
+       <div class="date-selectors">
 
-        <button onclick="calculateAge()">Calculate Age</button>
+    <select id="day"></select>
+    <select id="month"></select>
+    <select id="year"></select>
+
+</div>
+
+
+        <button class="primary-btn" onclick="calculateAge()">Calculate Age</button>
+
 
         <div class="results" style="margin-top:20px;">
             <div class="box">
@@ -45,37 +53,74 @@
             </div>
         </div>
     </div>
-
 <script>
-function calculateAge() {
-    const dob = new Date(document.getElementById("dob").value);
-    const today = new Date();
 
-    if (!document.getElementById("dob").value) {
-        alert("Please select your date of birth.");
+document.addEventListener("DOMContentLoaded", function() {
+
+    const daySelect = document.getElementById("day");
+    const monthSelect = document.getElementById("month");
+    const yearSelect = document.getElementById("year");
+
+    // Populate Days
+    for (let i = 1; i <= 31; i++) {
+        daySelect.innerHTML += `<option value="${i}">${i}</option>`;
+    }
+
+    // Populate Months
+    const months = [
+        "January","February","March","April","May","June",
+        "July","August","September","October","November","December"
+    ];
+
+    months.forEach((month, index) => {
+        monthSelect.innerHTML += `<option value="${index}">${month}</option>`;
+    });
+
+    // Populate Years
+    const currentYear = new Date().getFullYear();
+    for (let y = currentYear; y >= 1900; y--) {
+        yearSelect.innerHTML += `<option value="${y}">${y}</option>`;
+    }
+
+});
+
+function calculateAge() {
+
+    const day = parseInt(document.getElementById("day").value);
+    const month = parseInt(document.getElementById("month").value);
+    const year = parseInt(document.getElementById("year").value);
+
+    if (!day || month === null || !year) {
+        alert("Please select a valid date.");
         return;
     }
 
-    let years = today.getFullYear() - dob.getFullYear();
-    let months = today.getMonth() - dob.getMonth();
-    let days = today.getDate() - dob.getDate();
+    const birthDate = new Date(year, month, day);
+    const today = new Date();
 
-    if (days < 0) {
-        months--;
-        const previousMonth = new Date(today.getFullYear(), today.getMonth(), 0);
-        days += previousMonth.getDate();
+    let ageYears = today.getFullYear() - birthDate.getFullYear();
+    let ageMonths = today.getMonth() - birthDate.getMonth();
+    let ageDays = today.getDate() - birthDate.getDate();
+
+    if (ageDays < 0) {
+        ageMonths--;
+        const previousMonthDays = new Date(today.getFullYear(), today.getMonth(), 0).getDate();
+        ageDays += previousMonthDays;
     }
 
-    if (months < 0) {
-        years--;
-        months += 12;
+    if (ageMonths < 0) {
+        ageYears--;
+        ageMonths += 12;
     }
 
-    document.getElementById("years").innerText = years;
-    document.getElementById("months").innerText = months;
-    document.getElementById("days").innerText = days;
+    // Update result boxes
+    document.getElementById("years").innerText = ageYears;
+    document.getElementById("months").innerText = ageMonths;
+    document.getElementById("days").innerText = ageDays;
 }
+
 </script>
+
 
 </body>
 </html>
